@@ -15,7 +15,7 @@ omega2 = 2*pi*-10;
 
 % J-coupling between 1 and 2
 J12 = .25; % in Hz, per convention
-J12 = 4; % in Hz, per convention
+J12 = -4; % in Hz, per convention
 
 % Hamiltonians for the coupled 2-spin experiment
 Hcs1 = omega1 * I1z;
@@ -32,7 +32,7 @@ dt = 1/np; % sampling dwell-time
 for ti=1:np
   m1(ti,:) = M1(rho);
   m2(ti,:) = M2(rho);
-  mcoh(:,ti) = Mcoh2(rho);
+  mcoh(ti,:) = Mcoh2(rho);
   % freely evolve - apply Hfree for dt
   rho = arrow(rho, Hfree*dt);
 end

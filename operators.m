@@ -54,16 +54,17 @@ I1zI2z = IIscale*kron(Iz,Iz);
 % arrow(I1x, 2*pi*I1z*0.25)
 %
 arrow = @(op, H) (expm(-1i * H) * op * expm(1i * H));
+arrowU = @(op, U) (U * op * U');
 
 % measure the expected 3d magnetization, given a density operator rho
 % (due to floating-point error, imag part can be very small: force it to 0)
 M = @(rho) real([trace(rho*Ix) trace(rho*Iy) trace(rho*Iz)]);
 
-% M for spins 1 and 2 in a coupled 2-spin-1/2 system (single-quantum coherences)
+% M for spins 1 and 2 in a coupled 2 spin-1/2 system (single-quantum coherences)
 M1 = @(rho) real([trace(rho*I1x) trace(rho*I1y) trace(rho*I1z)]);
 M2 = @(rho) real([trace(rho*I2x) trace(rho*I2y) trace(rho*I2z)]);
 
-% other magnetization coherences for 2-spin-1/2 system
+% other magnetization coherences for 2 spin-1/2 system
 Mcoh2 = @(rho) ([...
     trace(rho*I1xI2z) ... % anti-phase magnetization spin 1
     trace(rho*I1yI2z) ...
@@ -75,4 +76,7 @@ Mcoh2 = @(rho) ([...
     trace(rho*I1yI2y) ...
     trace(rho*I1zI2z) ]); % non-equlibrium population
 
-% M for spins 1,2,3 in a coupled 3-spin-1/2
+% M for spins 1,2,3 in a coupled 3 spin-1/2 system
+M31 = @(rho) real([trace(rho*I31x) trace(rho*I31y) trace(rho*I31z)]);
+M32 = @(rho) real([trace(rho*I32x) trace(rho*I32y) trace(rho*I32z)]);
+M32 = @(rho) real([trace(rho*I33x) trace(rho*I33y) trace(rho*I33z)]);
