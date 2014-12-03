@@ -28,13 +28,16 @@ rho = arrow(rho, pi/2*I1y);
 % do a "readout" - intermittant sampling of magnetization vectors
 np = 128;  % number of points to record
 dt = 1/np; % sampling dwell-time
+
 % record M for ~1s
+U = makeU(Hfree*dt);
 for ti=1:np
   m1(ti,:) = M1(rho);
   m2(ti,:) = M2(rho);
   mcoh(ti,:) = Mcoh2(rho);
   % freely evolve - apply Hfree for dt
-  rho = arrow(rho, Hfree*dt);
+  %rho = arrow(rho, Hfree*dt); <- old way, calculate expm(-i*Hfree*dt) every time
+  rho = arrowU(rho, U);
 end
 
 % should start at M1=(1,0,0)
