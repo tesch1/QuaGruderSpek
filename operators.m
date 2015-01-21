@@ -64,6 +64,9 @@ M = @(rho) real([trace(rho*Ix) trace(rho*Iy) trace(rho*Iz)]);
 M1 = @(rho) real([trace(rho*I1x) trace(rho*I1y) trace(rho*I1z)]);
 M2 = @(rho) real([trace(rho*I2x) trace(rho*I2y) trace(rho*I2z)]);
 
+% build a louiville commutator super operator for hamiltonian H
+SuperCommu = @(H) (kron(E, H) - kron(H.t(), E));
+
 % other magnetization coherences for 2 spin-1/2 system
 Mcoh2 = @(rho) ([...
     trace(rho*I1xI2z) ... % anti-phase magnetization spin 1

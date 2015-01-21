@@ -17,6 +17,7 @@ Hcs = omega * Iz;
 % do a "readout" - intermittant sampling of magnetization vectors
 np = 128;  % number of points to record
 dt = 1/np; % sampling dwell-time
+
 % record M for ~1s
 for ti=1:np
   m1(ti,:) = M(rho);
