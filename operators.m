@@ -1,51 +1,79 @@
 %
 % Quantenmechanische Grundlagen der NMR-Spektroskopie
-% QuaGruderSpek
+%                  "QuaGruderSpek"
 %
+% 
 
-% setup operators
-
-%useful constants
-%RT2 = sqrt(2.0);
-RT2 = sym('RT2');
-RT2r = 1./RT2; % r for reciprocal
-
-% symbolics
-a=sym('a');
-b=sym('b');
-psi_ab = [a; b];
-
-Iscale = 0.5;
-IIscale = 2;
-IIIscale = 2;
-%Iscale = 1;
-%IIscale = 1;
+% running this file creates operators for 1,2,3-spin systems
+% in the MATLAB environment
 
 % cartesian operators for single 1/2-spin (2x2)
-II  = eye(2);
-Ix = Iscale*[0 1; 1 0];
-Iy = Iscale*[0 -1i; 1i 0];
-Iz = Iscale*[1 0; 0 -1];
+% Ie = unity operator, single spin
+Ie  = eye(2);
+Ix = 0.5*[0 1;
+          1 0];
+Iy = 0.5*[0 -1i;
+          1i 0];
+Iz = 0.5*[1 0;
+          0 -1];
 
 % operators for two coupled 1/2-spin systems (4x4)
-I1x = kron(Ix,II);
-I1y = kron(Iy,II);
-I1z = kron(Iz,II);
-I2x = kron(II,Ix);
-I2y = kron(II,Iy);
-I2z = kron(II,Iz);
-I1xI2x = IIscale*kron(Ix,Ix);
-I1xI2y = IIscale*kron(Ix,Iy);
-I1xI2z = IIscale*kron(Ix,Iz);
-I1yI2x = IIscale*kron(Iy,Ix);
-I1yI2y = IIscale*kron(Iy,Iy);
-I1yI2z = IIscale*kron(Iy,Iz);
-I1zI2x = IIscale*kron(Iz,Ix);
-I1zI2y = IIscale*kron(Iz,Iy);
-I1zI2z = IIscale*kron(Iz,Iz);
 
-% operators for coupled 3 spin-1/2 sytem (8x8)
+% q=1
 
+I1x = kron(Ix,Ie);
+I1y = kron(Iy,Ie);
+I1z = kron(Iz,Ie);
+I2x = kron(Ie,Ix);
+I2y = kron(Ie,Iy);
+I2z = kron(Ie,Iz);
+
+% q=2
+
+I1xI2x = 2*kron(Ix,Ix);
+I1xI2y = 2*kron(Ix,Iy);
+I1xI2z = 2*kron(Ix,Iz);
+I1yI2x = 2*kron(Iy,Ix);
+I1yI2y = 2*kron(Iy,Iy);
+I1yI2z = 2*kron(Iy,Iz);
+I1zI2x = 2*kron(Iz,Ix);
+I1zI2y = 2*kron(Iz,Iy);
+I1zI2z = 2*kron(Iz,Iz);
+
+% q=0
+
+% q=1
+
+S1x = kron(Ie,kron(Ix,Ie));
+S1y = kron(Ie,kron(Iy,Ie));
+S1z = kron(Ie,kron(Iz,Ie));
+S2x = kron(Ie,kron(Ie,Ix));
+S2y = kron(Ie,kron(Ie,Ix));
+S2z = kron(Ie,kron(Ie,Iz));
+S3x = kron(kron(Ix,Ie),Ie);
+S3y = kron(kron(Iy,Ie),Ie);
+S3z = kron(kron(Iz,Ie),Ie);
+
+% q=2
+
+% remaining operators for coupled 3 spin-1/2 sytem (8x8)
+% creates SABC with A,B,C in {'e','x','y','z'}
+EXYZ={'e','x','y','z'};
+FXYZ=[1,2,2,2];
+for aa=1:4
+  for bb=1:4
+    for cc=1:4
+      name = upper(['S' EXYZ{aa} EXYZ{bb} EXYZ{cc}]);
+      cmd = [name ' = kron(kron(I' EXYZ{aa} ',I' EXYZ{bb} '),I' EXYZ{cc} ');'];
+      eval(cmd);
+      cmd = [name ' = ' name ' * 0.5 * ' num2str(FXYZ(aa)*FXYZ(bb)*FXYZ(cc)) ';'];
+      eval(cmd);
+      %disp(name);
+      %eval(['norm(' name ')']);
+    end
+  end
+end
+clear EXYZ FXYZ
 
 % the arrow operator
 % ie: I1y --- 2*pi*I1x*t ---> I1y*cos(2*pi*t) + I1z * sin(2*pi*t)
@@ -53,22 +81,32 @@ I1zI2z = IIscale*kron(Iz,Iz);
 % example: subject I1x to the Hamiltonian 2*pi*I1z for t=0.25):
 % arrow(I1x, 2*pi*I1z*0.25)
 %
-arrow = @(op, H) (expm(-1i * H) * op * expm(1i * H));
-arrowU = @(op, U) (U * op * U');
+arrow = @(rho,H,t) (expm(-1i * H * t) * rho * expm(1i * H * t));
+makeU = @(H, t)    expm(-1i * H * t);
+arrowU = @(rho, U) (U * rho * U');
+meas1 = @(rho)     (real(trace(rho*Ix)) - i*real(trace(rho*Iy)));
+meas2 = @(rho)     (real(trace(rho*I1x)+trace(rho*I2x)) - i*real(trace(rho*I1y)+trace(rho*I2y)));
 
 % measure the expected 3d magnetization, given a density operator rho
-% (due to floating-point error, imag part can be very small: force it to 0)
+% (due to floating-point error, imag part can be very small, so
+%  we use real() to force it to 0)
 M = @(rho) real([trace(rho*Ix) trace(rho*Iy) trace(rho*Iz)]);
 
 % M for spins 1 and 2 in a coupled 2 spin-1/2 system (single-quantum coherences)
 M1 = @(rho) real([trace(rho*I1x) trace(rho*I1y) trace(rho*I1z)]);
 M2 = @(rho) real([trace(rho*I2x) trace(rho*I2y) trace(rho*I2z)]);
+N1x = @(rho) real([trace(rho*I1x)]);
+N1y = @(rho) real([trace(rho*I1y)]);
+N1z = @(rho) real([trace(rho*I1z)]);
+N2x = @(rho) real([trace(rho*I2x)]);
+N2y = @(rho) real([trace(rho*I2y)]); 
+N2z = @(rho) real([trace(rho*I2z)]);
 
 % build a louiville commutator super operator for hamiltonian H
 SuperCommu = @(H) (kron(E, H) - kron(H.t(), E));
 
-% other magnetization coherences for 2 spin-1/2 system
-Mcoh2 = @(rho) ([...
+% other magnetization coherences for 2-spin-1/2 system
+Mcoh2 = @(rho) real([...
     trace(rho*I1xI2z) ... % anti-phase magnetization spin 1
     trace(rho*I1yI2z) ...
     trace(rho*I1zI2x) ... % anti-phase magnetization spin 2
@@ -79,7 +117,88 @@ Mcoh2 = @(rho) ([...
     trace(rho*I1yI2y) ...
     trace(rho*I1zI2z) ]); % non-equlibrium population
 
-% M for spins 1,2,3 in a coupled 3 spin-1/2 system
-M31 = @(rho) real([trace(rho*I31x) trace(rho*I31y) trace(rho*I31z)]);
-M32 = @(rho) real([trace(rho*I32x) trace(rho*I32y) trace(rho*I32z)]);
-M32 = @(rho) real([trace(rho*I33x) trace(rho*I33y) trace(rho*I33z)]);
+% constants to index into Mcoh2() generated measurements
+idxI1xI2z = 1;
+idxI1yI2z = 2;
+idxI1zI2x = 3;
+idxI1zI2y = 4;
+idxI1xI2x = 5;
+idxI1xI2y = 6;
+idxI1yI2x = 7;
+idxI1yI2y = 8;
+idxI1zI2z = 9;
+
+% M for spins 1,2,3 in a coupled 3-spin-1/2
+
+MS1 = @(rho) real([trace(rho*S1x) trace(rho*S1y) trace(rho*S1z)])*IIscale;
+MS2 = @(rho) real([trace(rho*S2x) trace(rho*S2y) trace(rho*S2z)])*IIscale;
+MS3 = @(rho) real([trace(rho*S3x) trace(rho*S3y) trace(rho*S3z)])*IIscale;
+
+%other magnetization coherences for 3-spin-1/2-system
+
+Mcoh3 = @(rho) ([...
+    trace(rho*S1xS2zS3z)...
+    trace(rho*S1yS2zS3z)...
+    trace(rho*S1zS2xS3z)...
+    trace(rho*S1zS2yS3z)...
+    trace(rho*S1zS2zS3x)...
+    trace(rho*S1zS2zS3y)...
+    trace(rho*S1xS2zE)...
+    trace(rho*S1xES3z)...
+    trace(rho*S1yES3z)...
+    trace(rho*S1yS2zE)...
+    trace(rho*S1zES3x)...
+    trace(rho*S1zES3y)...
+    trace(rho*S1zS2xE)...
+    trace(rho*S1zS2yE)...
+    trace(rho*ES2xS3z)...
+    trace(rho*ES2yS3z)...
+    trace(rho*ES2zS3x)...
+    trace(rho*ES2zS3y)...
+    trace(rho*S1xS2xE)...               % 2-spin-coherence
+    trace(rho*S1xES3x)...
+    trace(rho*S1yS2yE)...
+    trace(rho*S1yES3y)...
+    trace(rho*ES2xS3x)...
+    trace(rho*ES2yS3y)...
+    trace(rho*S1xS2zS3x)...
+    trace(rho*S1xS2xS3z)...
+    trace(rho*S1zS2xS3x)...
+    trace(rho*S1yS2yS3z)...
+    trace(rho*S1zS2yS3y)...
+    trace(rho*S1yS2zS3y)...
+    trace(rho*S1xS2xE)...
+    trace(rho*S1xS2yE)...
+    trace(rho*S1xES3x)...
+    trace(rho*S1yES3x)...
+    trace(rho*S1yES3y)...
+    trace(rho*S1yS2xE)...
+    trace(rho*S1yS2yE)...
+    trace(rho*ES2xS3x)...
+    trace(rho*ES2xS3y)...
+    trace(rho*ES2yS3x)...
+    trace(rho*ES2yS3y)...
+    trace(rho*S1xS2yS3x)...  % 3-spin-coherence
+    trace(rho*S1xS2xS3y)...
+    trace(rho*S1yS2xS3x)...
+    trace(rho*S1xS2yS3y)...
+    trace(rho*S1yS2yS3x)...
+    trace(rho*S1yS2xS3y)...
+    trace(rho*S1xS2xE)...
+    trace(rho*S1xS2yE)...
+    trace(rho*S1xES3x)...
+    trace(rho*S1yES3x)...
+    trace(rho*S1yES3y)...
+    trace(rho*S1yS2xE)...
+    trace(rho*S1yS2yE)...
+    trace(rho*ES2xS3x)...
+    trace(rho*ES2xS3y)...
+    trace(rho*ES2yS3x)...
+    trace(rho*ES2yS3y)...
+    trace(rho*S1xS2xS3x)... 
+    trace(rho*S1yS2yS3y)...
+    trace(rho*S1zES3z)...  %non-equilibrium population
+    trace(rho*S1zS2zE)...
+    trace(rho*ES2zS3z)...
+    trace(rho*S1zS2zS3z)...
+    ]);                
