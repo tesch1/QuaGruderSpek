@@ -86,6 +86,8 @@ makeU = @(H, t)    expm(-1i * H * t);
 arrowU = @(rho, U) (U * rho * U');
 meas1 = @(rho)     (real(trace(rho*Ix)) - i*real(trace(rho*Iy)));
 meas2 = @(rho)     (real(trace(rho*I1x)+trace(rho*I2x)) - i*real(trace(rho*I1y)+trace(rho*I2y)));
+%meas2 = @(rho)     (real(trace(rho*(I1x+I2x))) - i*real(trace(rho*(I1y+I2y))));
+meas3 = @(rho)     (real(trace(rho*(IXEE+IEXE+IEEX))) - i*real(trace(rho*(IYEE+IEYE+IEEY))));
 
 % measure the expected 3d magnetization, given a density operator rho
 % (due to floating-point error, imag part can be very small, so
