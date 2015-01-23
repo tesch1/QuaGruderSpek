@@ -63,7 +63,7 @@ FXYZ=[1,2,2,2];
 for aa=1:4
   for bb=1:4
     for cc=1:4
-      name = upper(['S' EXYZ{aa} EXYZ{bb} EXYZ{cc}]);
+      name = upper(['I' EXYZ{aa} EXYZ{bb} EXYZ{cc}]);
       cmd = [name ' = kron(kron(I' EXYZ{aa} ',I' EXYZ{bb} '),I' EXYZ{cc} ');'];
       eval(cmd);
       cmd = [name ' = ' name ' * 0.5 * ' num2str(FXYZ(aa)*FXYZ(bb)*FXYZ(cc)) ';'];
