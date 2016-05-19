@@ -57,7 +57,7 @@ S3z = kron(kron(Iz,Ie),Ie);
 % q=2
 
 % remaining operators for coupled 3 spin-1/2 sytem (8x8)
-% creates SABC with A,B,C in {'e','x','y','z'}
+% creates IABC with A,B,C in {'e','x','y','z'}
 EXYZ={'e','x','y','z'};
 FXYZ=[1,2,2,2];
 for aa=1:4
@@ -84,10 +84,11 @@ clear EXYZ FXYZ
 arrow = @(rho,H,t) (expm(-1i * H * t) * rho * expm(1i * H * t));
 makeU = @(H, t)    expm(-1i * H * t);
 arrowU = @(rho, U) (U * rho * U');
+% real() is just used here to clip the floating point error that shows up in imag()
 meas1 = @(rho)     (real(trace(rho*Ix)) - i*real(trace(rho*Iy)));
-meas2 = @(rho)     (real(trace(rho*I1x)+trace(rho*I2x)) - i*real(trace(rho*I1y)+trace(rho*I2y)));
+meas2 = @(rho)     (real(trace(rho*I1x)+trace(rho*I2x)) - 1i*real(trace(rho*I1y)+trace(rho*I2y)));
 %meas2 = @(rho)     (real(trace(rho*(I1x+I2x))) - i*real(trace(rho*(I1y+I2y))));
-meas3 = @(rho)     (real(trace(rho*(IXEE+IEXE+IEEX))) - i*real(trace(rho*(IYEE+IEYE+IEEY))));
+meas3 = @(rho)     (real(trace(rho*(IXEE+IEXE+IEEX))) - 1i*real(trace(rho*(IYEE+IEYE+IEEY))));
 
 % measure the expected 3d magnetization, given a density operator rho
 % (due to floating-point error, imag part can be very small, so
@@ -97,15 +98,12 @@ M = @(rho) real([trace(rho*Ix) trace(rho*Iy) trace(rho*Iz)]);
 % M for spins 1 and 2 in a coupled 2 spin-1/2 system (single-quantum coherences)
 M1 = @(rho) real([trace(rho*I1x) trace(rho*I1y) trace(rho*I1z)]);
 M2 = @(rho) real([trace(rho*I2x) trace(rho*I2y) trace(rho*I2z)]);
-N1x = @(rho) real([trace(rho*I1x)]);
-N1y = @(rho) real([trace(rho*I1y)]);
-N1z = @(rho) real([trace(rho*I1z)]);
-N2x = @(rho) real([trace(rho*I2x)]);
-N2y = @(rho) real([trace(rho*I2y)]); 
-N2z = @(rho) real([trace(rho*I2z)]);
+
+% build a commutator for (A,B)
+commutator = @(A,B) (A*B - B*A);
 
 % build a louiville commutator super operator for hamiltonian H
-SuperCommu = @(H) (kron(E, H) - kron(H.t(), E));
+SuperCommu = @(H) (kron(eye(size(H)), H) - kron(H', eye(size(H))));
 
 % other magnetization coherences for 2-spin-1/2 system
 Mcoh2 = @(rho) real([...

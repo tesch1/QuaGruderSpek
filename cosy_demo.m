@@ -153,7 +153,9 @@ colorbar
 
 subplot(2,2,3)
 surf(xticks,yticks,spec)
-zoom(1.5);
+xlabel('\omega_2 (Hz)')
+ylabel('\omega_1 (Hz)')
+%zoom(1.5); - weird zoom in Matlab2016+, disable
 
 subplot(2,2,2)
 % p. 195, "The diagonal-peak multiplet"
@@ -172,5 +174,7 @@ colorbar
 
 subplot(2,2,4)
 surf(xticks,yticks,spec)
-zoom(1.5);
+xlabel('\omega_2 (Hz)')
+ylabel('\omega_1 (Hz)')
+%zoom(1.5); - weird zoom in Matlab2016+, disable
 

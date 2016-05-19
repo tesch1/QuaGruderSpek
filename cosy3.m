@@ -1,5 +1,5 @@
 %
-% pulse acquire experiment, using product operator formalism
+% cosy experiment, using product operator formalism
 %
 
 operators; % setup operators

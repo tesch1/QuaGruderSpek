@@ -12,6 +12,8 @@ rho0 = I1z + I2z;
 % chemical shift of spins, omega=offset in rad/s
 omega1 = 2*pi*40;
 omega2 = 2*pi*10;
+
+% relaxation time constant
 T2 = 0.5;
 
 % J-coupling between 1 and 2
