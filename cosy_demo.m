@@ -9,6 +9,7 @@
 % 2016, Michael Tesch - michael.tesch@tum.de
 %
 
+% clear all variables from Matlab workspace
 clear
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -23,6 +24,7 @@ Iz = 0.5*[1 0;
           0 -1];
 Ie  = eye(2);
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % setup two spin operators
 %
 % section 7.4, p. 150
@@ -52,12 +54,13 @@ I1yI2y = 2*kron(Iy, Iy);
 % non-equilibrium population
 I1zI2z = 2*kron(Iz, Iz);
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % time propagation functions
 %
 % section 6.8.4, p. 129
 arrow  = @(rho,H,t) expm(-1i * H * t) * rho * expm(1i * H * t);
-arrowU = @(rho, U)  (U * rho * U');
 makeU  = @(H,t)     expm(-1i * H * t);
+arrowU = @(rho, U)  (U * rho * U');
 
 % sample function - quadrature detection in Bruker is of (I-)
 %
@@ -89,15 +92,16 @@ Hcs2 = omega2 * I2z;
 % free evolution
 Hfree = Hcs1 + Hcs2 + 2*pi*J12*I1zI2z;
 
-% do a "readout" - sample the magnetization
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% define a "readout" - sample the magnetization over time
 %
 % section 13.5.2, p. 490
 np = 128;  % number of time points to record
-dt = 1/np; % time between samples, total sample time = 1 s
+dt = 1.0/np; % time between samples, total sample time = 1.0 s
 
 % time propagators
 
-% free evolution
+% free evolution between samples
 Udt = expm(-1i * Hfree * dt);
 % 90 degree pulse with x phase - "around x"
 U90x = expm(-1i * pi/2 * (I1x+I2x) );
@@ -126,6 +130,7 @@ for ti1=1:np
   end
 end
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % processing
 
 figure(2)
