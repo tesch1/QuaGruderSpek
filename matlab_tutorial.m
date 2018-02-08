@@ -1,4 +1,5 @@
 % -*-matlab-*-
+%
 % Matlab Tutorial Examples
 %
 % type these examples into Matlab's command window...
@@ -29,7 +30,10 @@ a = 2 + 4i
 % create a row
 x = [ 1 2 3 ]
 
-% create a column (row transposed)
+% create a column (conjugate transposed)
+x = [ 1 2 3i ]'
+
+% create a column (a row transposed)
 x = [ 1 2 3 ].'
 
 % or, equivalently (use ; to separate rows)
@@ -40,7 +44,7 @@ A = [ 1 2 ; 3 4 ]
 
 % variables can have any name, but dont use "i" !!!
 i
-i = 2
+% DONT: i = 2
 
 % accessing just part of a matrix (a sub-matrix)
 A(1)
@@ -147,10 +151,18 @@ title('a good plot')
 % dividing by zero - Inf
 1/0
 
+% even 0/0 is wrong
+0/0
+
+% what's Inf + Inf?
+Inf+Inf
+Inf*Inf
+
 % using Inf - NaN (Not-a-Number!)
 Inf/Inf
 
 % Limitations of numbers
+10^30
 sprintf('%f', 10^30)
 
 % subtraction and addition of vastly different scales gives errors

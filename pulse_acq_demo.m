@@ -103,9 +103,9 @@ dt = 1/np; % time between samples, total sample time = 1 s
 
 % free evolution propagator
 Udt = expm(-1i * Hfree * dt);
+
 % ideal 90 degree pulse with y phase - "around y"
 U90y = expm(-1i * pi/2 * (I1y+I2y) );
-%U90y = expm(-1i * pi/2 * (I1x+I2x) );
 
 % pulse 90
 rho = arrowU(rho0, U90y);
